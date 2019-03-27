@@ -5,36 +5,55 @@ namespace App\Http\Controllers;
 use App\Lokasi;
 use App\Kendaraan;
 use Illuminate\Http\Request;
-use Yajra\DataTables\CollectionDataTable;
-use Yajra\Datatables\Facades\Datatables;
+use DataTables;
+use \Softon\LaravelFaceDetect\Facades\FaceDetect;
 
 class LokasiController extends Controller
 {
     protected $kendaraan;
+    protected $lokasi;
 
     public function __construct(Kendaraan $kendaraan)
     {
         $this->kendaraan = $kendaraan;
+        // $this->lokasi = $lokasi;
     }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function lok(Request $request)
     {
         $filter = $request->all();
         if ($request->ajax()) {
-            // return Datatables::collection(Kendaraan::all()->toJson())
-            //     ->setRowID('id')
+             return DataTables::of(Kendaraan::get())
+                 ->setRowID('id')
             //     // ->setRowData(['IDStatusDokumen'=>'IDStatusDokumen'])
             //     // ->addColumn('URL', '<input type="checkbox" name="id[]" value="{{ $id }}">')
             //     // ->addColumn('G', 'backends.kpi.rencana.actionbuttons')
             //     // ->rawColumns(['checkall', 'Aksi'])
-            //     ->make(true);
-            $collection = Kendaraan::all();
+                 ->make(true);
+        }
+        return view('layouts.lokasi');
+    }
 
-            return (new CollectionDataTable($collection))->toJson();
+
+    public function index(Request $request)
+    {
+        $filter = $request->all();
+        
+        if ($request->ajax()) {
+            //FaceDetect::extract($imagefilepath)->save($savefilepath);
+            $crop_params = (FaceDetect::extract('assets/c.jpg')->face_found)=='1'?'true':'false';
+             return DataTables::of(Lokasi::get())
+                ->setRowID('id')
+                ->setRowData(['longitude'=>'longitude','latitude'=>'latitude'])
+                ->addColumn('url', '<a href="http://maps.googleapis.com/maps/api/geocode/json?latlng={{trim($latitude)}},{{$longitude}}&sensor=false">Click Me</a>')
+                ->editColumn('photo', '<img height="100px" src="{{asset(\'assets/pp.jpg\')}}"></img>')
+                ->addColumn('test', $crop_params)
+                ->rawColumns(['url','photo'])
+                ->make(true);
         }
         return view('layouts.lokasi');
     }
