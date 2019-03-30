@@ -143,7 +143,7 @@ class LokasiController extends Controller
             
         } catch (\Exception $e) {
             flash()->error('h'.$e->getMessage())->important();
-            return redirect()->view('layouts.lokasi');
+            return view('layouts.lokasi');
         }
         if($result){
             flash()->success('Lokasi berhasil disimpan')->important();

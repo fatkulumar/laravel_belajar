@@ -105,6 +105,7 @@
                                     var html='<tr>';
                                     html+=('<td>'+0+'</td>');
                                     $.each(e, function(i, item) {
+                                        if(e==null){alert("location not found");}
                                             html+='<td>'+item+'</td>';
                                     });
                                     html+='</tr>';
