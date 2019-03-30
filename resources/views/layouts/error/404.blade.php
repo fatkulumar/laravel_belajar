@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app',['title'=>'NOT FOUND LUR'])
 @section('content')
 <center>
 <h1>Not Found</h1>

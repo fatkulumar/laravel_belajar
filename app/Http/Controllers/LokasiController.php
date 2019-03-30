@@ -72,9 +72,27 @@ class LokasiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store($longitude, $latitude)
     {
-        //
+        
+        try {
+            $result = $this->storeLokasiService->call([
+            'longitude'=>$longitude,
+            'latitude'=>$latitude,
+            'foto'=>''
+            ]);
+            if($result){
+                flash()->success('Lokasi berhasil disimpan')->important();
+            }else{
+                flash()->error('Gagal menyimpan lokasi')->important();
+                return redirect()->back();
+            }
+        }catch (\Exception $e) {
+                flash()->error('Gagal menyimpan lokasi'.$e->getMessage())->important();
+                return redirect()->back();
+        }
+            
+        return view('layouts.lokasi');
     }
 
     /**
@@ -133,7 +151,7 @@ class LokasiController extends Controller
         $result=false;
         try {
             if ($request->ajax()) {
-                $result = $this->storeLokasiService->call($request->except('_token'));
+                //$result = $this->storeLokasiService->call($request->except('_token'));
                 return response( /*flash()->success('Lokasi berhasil disimpan')->important()*/)->json([
                     $request->latitude,
                     $request->longitude,
