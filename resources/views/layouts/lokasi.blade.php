@@ -1,7 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.app',['title'=>(checkActiveMenu('data')==='active'?'HADI LUR - DATA':'HADI LUR')])
 @section('content')
-    
-    <div style="padding:100px">
+    <div style="padding:10px 100px 50px 100px">
         <header>
             <h1 class="judul"><strong>ANTI THEFT INFORMATION SYSTEM</strong></h1>
             <h3 class="deskripsi"><strong>HADI KISWANTooO</strong></h3>
@@ -9,8 +8,8 @@
 
         <div class="menu">
             <ul>
-                <li><a href="{{route('index')}}">HOME</a></li>
-                <li><a href="{{'data'}}">DATA</a></li>
+                <li class="{{checkActiveMenu('/')}}"><a href="{{route('index')}}">HOME</a></li>
+                <li class="{{checkActiveMenu('data*')}}"><a href="{{'data'}}">DATA</a></li>
             </ul>
         </div>
 
@@ -19,9 +18,7 @@
         </div>
 
         <div class="menu1" style="display:none">
-            {{--  <div class="loading">
-                <div class="lds-dual-ring"> Loading...</div>
-            </div>  --}}
+            @include('layouts.error.flashmessage')
             <div id="lokasi"></div>
 
             @if (isset($umar))
@@ -64,21 +61,37 @@
                             </tr>
                         </thead>
                     </table>
-                {{--  </div>    --}}
 
                 <script type="text/javascript">
                     $(document).ready(function() {
+                        var loktable = $('#lokasi-table').DataTable({
+                            processing: true,
+                            serverSide: true,
+                            ajax: '{!! route("index", request()->all()) !!}',
+                            order: [[2, 'desc']],
+                            columns: [
+                                { data: 'id', name: 'id', orderable: true},
+                                { data: 'longitude', name:'longitude',orderable: false},
+                                { data: 'latitude', name: 'latitude',orderable: false },
+                                { data: 'photo', name: 'foto',orderable: false},
+                                { data: 'url', name: 'url',orderable: false},
+                                { data: 'face', name: 'face',orderable: false}
+                            ]
+                        });
+                        
                         if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(function (position) {
-                                tampilLokasi(position);
+                                tampilLokasi(position,loktable);
                         }, function (e) {
                             alert('Geolocation Tidak Mendukung Pada Browser Anda');
                         }, {
                             enableHighAccuracy: true
                         });
                         }
+                        $('.loading').show();
+                        $('.mwnu1').hide();
                     });
-                    function tampilLokasi(posisi) {
+                    function tampilLokasi(posisi,loktable) {
                         //console.log(posisi);
                         var foto = 'foto';
                         var latitude 	= posisi.coords.latitude; //bisa diisi sesuai kemauan
@@ -89,12 +102,6 @@
                             data 	: 'latitude='+latitude+'&longitude='+longitude+'&foto='+foto,
                             success	: function (e) {
                                 if (e) {
-                                    //var max = 0;
-                                    //$('#lokasi-table tbody').each(function() {
-                                    //    var value = parseInt($(this).data('id'));
-                                    //    max = (value > max) ? value : max;
-                                    //});
-                                    //alert(max);
                                     var html='<tr>';
                                     html+=('<td>'+0+'</td>');
                                     $.each(e, function(i, item) {
@@ -102,6 +109,7 @@
                                     });
                                     html+='</tr>';
                                     $('#lokasi-table tbody').append(html);
+                                    loktable.ajax.reload();
                                 }else{
                                     $('#lokasi').html('Tidak Tersedia');
                                 }
@@ -113,17 +121,9 @@
     </div>
 
     <script>
-         //$(window).on('load',function() { 
-          //  $('#kendaraan-table_wrapper').hide();
-          //  $('#lokasi-table_wrapper').hide();
-       //});
-         $(document).ready( function () {
-            
-            //setInterval("$('.menu1').show();", 2000);
 
-            //$('thead').show();
-            // $('#kendaraan-table_wrapper').show();
-             //$('#lokasi-table_wrapper').show();
+         $(document).ready( function () {
+
             $('#kendaraan-table').DataTable({
                 scrollX:true,
                 processing: false,
@@ -150,29 +150,9 @@
                     { data: 'masa_stnk', name: 'masa_stnk'}
                 ]
             });
-
-            $('#lokasi-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: '{!! route("index", request()->all()) !!}',
-                order: [[2, 'desc']],
-                columns: [
-                    { data: 'id', name: 'id', orderable: true},
-                    { data: 'longitude', name:'longitude',orderable: false},
-                    { data: 'latitude', name: 'latitude',orderable: false },
-                    { data: 'photo', name: 'foto',orderable: false},
-                    { data: 'url', name: 'url',orderable: false},
-                    { data: 'test', name: 'test',orderable: false}
-                ]
-            });
             $('.loading').show();
             $('.mwnu1').hide();
         });
-         
-         //$(window).on('load',function() { 
-            //$('#kendaraan-table_wrapper').hide();
-            //$('#lokasi-table_wrapper').hide();
-       //});
     </script>
 
 @endsection
